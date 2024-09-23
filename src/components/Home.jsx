@@ -1,10 +1,15 @@
-import React from 'react'
+import Products from './Products';
 
-const Home = () => {
+const Home = ({ data }) => {
+
+  console.log(data)
   return (
-    <div>
-      <h1>This is home component</h1>
-    </div>
+    <>
+      <div className='w-10/12 p-10'>
+        <Products data={data} />
+      </div>
+    </>
+
   )
 }
 

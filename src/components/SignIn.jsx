@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
-
-
+import { Link } from "react-router-dom";
 
 const SignIn = () => {
     const [error, setError] = useState(null);
@@ -32,7 +31,7 @@ const SignIn = () => {
                 <input type="text" placeholder='Enter Email' className=' rounded-2xl  p-4 border-2 highlight outline-none' {...register('email')} />
                 <input type="password" placeholder='Enter Password' className=' rounded-2xl  p-4 border-2 highlight outline-none' {...register('password')} />
                 <button type='submit'  onClick={handleSubmit(handleSignIn)} className='rounded-2xl border-blue-200 p-2 bg-blue-600 text-white'>Sign In</button>
-                <a href="/signup" className='text-md text-green-950 font-semibold'>Or SignUp instead</a>
+                <Link to="/signup" className="text-md text-green-950 font-semibold">Or SignUp instead</Link>
             </form>
         </div>
     )
