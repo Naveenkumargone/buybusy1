@@ -5,8 +5,8 @@ export function Loader() {
         // <div className='flex justify-center items-center'>
         //     <Spinner radius={120} color={"#333"} stroke={10} visible={true} />
         // </div>
-        <div class="container">
-            <div class="loadingspinner">
+        <div className="container">
+            <div className="loadingspinner">
                 <div id="square1"></div>
                 <div id="square2"></div>
                 <div id="square3"></div>

@@ -1,15 +1,12 @@
 import Products from './Products';
 
-const Home = ({ data }) => {
-
-  console.log(data)
+const Home = ({ filteredData }) => {
   return (
     <>
-      <div className='w-10/12 p-10'>
-        <Products data={data} />
-      </div>
+        <div className='w-10/12 p-10'>
+          <Products filteredData={filteredData} />
+        </div>
     </>
-
   )
 }
 

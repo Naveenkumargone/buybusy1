@@ -12,12 +12,9 @@ import { Loader } from "./components/Loader";
 
 function App() {
   const [data, setData] = useState(null); // Start with null instead of undefined
+  const [filteredData, setFilteredData] = useState(null);
   const [price, setPrice] = useState(0);
-
-  // Function to handle price changes
-  const handlePriceChange = (e) => {
-    setPrice(e.target.value);
-  };
+  const [sharedData, setSharedData] = useState([]);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -25,6 +22,7 @@ function App() {
       try {
         const result = await axios.get("https://fakestoreapi.com/products");
         setData(result.data);
+        setFilteredData(result.data);
       } catch (error) {
         console.error("Error fetching data", error);
       }
@@ -32,6 +30,32 @@ function App() {
 
     fetchData();
   }, []);
+
+  // Centralize filtering logic based on both price and categories
+  useEffect(() => {
+    function filterData() {
+      if (data) {
+        const newdata = data.filter((pdata) => {
+          const isPriceMatch = price === 0 || pdata.price <= price;
+          const isCategoryMatch = sharedData.length === 0 || sharedData.includes(pdata.category);
+          return isPriceMatch && isCategoryMatch;
+        });
+        setFilteredData(newdata);
+      }
+    }
+
+    filterData();
+  }, [data, price, sharedData]); // Run when price or categories change
+
+  // Function to handle price filter updates
+  const sharePrice = (pricedata) => {
+    setPrice(pricedata); // Simply set the price, filtering happens automatically
+  };
+
+  // Function to handle category filter updates
+  const shareValue = (checkboxdata) => {
+    setSharedData(checkboxdata); // Set selected categories, filtering happens automatically
+  };
 
   return (
     <>
@@ -44,8 +68,8 @@ function App() {
               <>
                 <SearchBox />
                 <div className="flex justify-between">
-                  <Sidebar />
-                  <Home data={data} />
+                  <Sidebar sharePrice={sharePrice} shareValue={shareValue} />
+                  <Home filteredData={filteredData} />
                 </div>
               </>
             ) : (
