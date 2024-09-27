@@ -5,7 +5,7 @@ import { DataContext } from '../DataProviderContext';
 const Sidebar = ({ sharePrice, shareValue, cartTrue }) => {
   const [price, setPrice] = useState(750);
   const [value, setValue] = useState([]);
-  const { sharedData } = useContext(DataContext);
+  const { sharedData, setPurchase } = useContext(DataContext);
 
   const checkRange = (e) => {
     setPrice(e.target.value);
@@ -20,11 +20,16 @@ const Sidebar = ({ sharePrice, shareValue, cartTrue }) => {
     }
   }
 
+  const purchaseProd = () => {
+    setPurchase(true);
+  }
+
   useEffect(() => {
     if (!cartTrue) {
       shareValue(value);
     }
   }, [cartTrue, shareValue, value]);
+
 
   return (
     (cartTrue && sharedData === 0) ?
@@ -64,7 +69,7 @@ const Sidebar = ({ sharePrice, shareValue, cartTrue }) => {
               (<div className='flex justify-center items-center flex-wrap space-y-8'>
                 <h1 className='text-2xl text-green-950 font-semibold text-center w-full'>TotalPrice:- ₹ {sharedData}/- </h1>
                 <button type='submit' className='text-2xl rounded-xl w-1/2 left-2/4 border-blue-200 p-2 bg-blue-600 text-white'
-                >Purchase</button>
+                  onClick={() => purchaseProd()} >Purchase</button>
               </div>)}
           </div>
         </aside>

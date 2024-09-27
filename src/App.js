@@ -13,6 +13,7 @@ import Products from "./components/Products";
 import { DataProviderContext } from "./DataProviderContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Orders from "./components/Orders";
 
 function App() {
   const [data, setData] = useState(null); // Start with null instead of undefined
@@ -92,6 +93,7 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/cart" element={<CartPage cartTrue={true} />} />
+          <Route path="/orders" element={<Orders />} />
         </Routes>
       </DataProviderContext>
     </>

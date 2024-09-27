@@ -8,9 +8,10 @@ import { DataContext } from '../DataProviderContext';
 import { toast, ToastContainer } from 'react-toastify';
 
 const Products = (props) => {
-    const navigate = useNavigate();
     const [CartData, setCartData] = useState([]);
-    const { setSharedData } = useContext(DataContext);
+    const navigate = useNavigate();
+    const { setSharedData, setPurchase, purchase } = useContext(DataContext);
+    console.log(CartData)
 
     const fetchProducts = async () => {
         try {
@@ -22,11 +23,29 @@ const Products = (props) => {
         }
     }
 
+    const addPurchases = async (data) => {
+        try {
+            const results = await addDoc(collection(db, "orders"), {
+                order: data,
+                date: new Date()
+            });
+            if (results) {
+                setPurchase(false);
+                navigate('/orders');
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
         if (props.cartTrue) {
             fetchProducts();
         }
-    }, [props.cartTrue]);
+        if (purchase) {
+            addPurchases(CartData);
+        }
+    }, [props.cartTrue, purchase, setPurchase]);
 
 
     // Memoize the calculation of the total price to avoid recalculating on every render
