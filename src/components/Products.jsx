@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from "../index";
 import more from "../assets/more.png";
 import less from "../assets/less.png";
@@ -9,9 +9,9 @@ import { toast, ToastContainer } from 'react-toastify';
 
 const Products = (props) => {
     const [CartData, setCartData] = useState([]);
+    const [Loader, setLoader] = useState(null);
     const navigate = useNavigate();
-    const { setSharedData, setPurchase, purchase } = useContext(DataContext);
-    console.log(CartData)
+    const { setSharedData, setPurchase, purchase, setCart } = useContext(DataContext);
 
     const fetchProducts = async () => {
         try {
@@ -23,6 +23,25 @@ const Products = (props) => {
         }
     }
 
+    const deleteAllDocumentsInCollection = async (collectionName) => {
+        const collectionRef = collection(db, collectionName);
+        
+        try {
+            const querySnapshot = await getDocs(collectionRef);
+            const deletePromises = [];
+            
+            querySnapshot.forEach((doc) => {
+                deletePromises.push(deleteDoc(doc.ref)); // Prepare a promise to delete each document
+            });
+    
+            await Promise.all(deletePromises); // Wait for all delete promises to resolve
+        } catch (error) {
+            console.error("Error deleting documents:", error);
+        }
+    };
+
+
+
     const addPurchases = async (data) => {
         try {
             const results = await addDoc(collection(db, "orders"), {
@@ -31,6 +50,9 @@ const Products = (props) => {
             });
             if (results) {
                 setPurchase(false);
+                deleteAllDocumentsInCollection("products"); 
+                setCart(null);
+                setSharedData(0);
                 navigate('/orders');
             }
         } catch (error) {
@@ -61,19 +83,34 @@ const Products = (props) => {
 
     const addToCart = async (data) => {
         try {
-            const docRef = await addDoc(collection(db, "products"), {
-                id: data.id,
-                title: data.title,
-                category: data.category,
-                image: data.image,
-                price: data.price,
-                quantity: 1
-            });
-            toast("Adding to Cart");
+            const prodRef = doc(db, 'products', data.title); // Reference to the document based on product ID
+            // Check if the document already exists
+            const docSnap = await getDoc(prodRef);
+            
+            if (docSnap.exists()) {
+                // Document exists, increment the quantity
+                const currentQuantity = docSnap.data().quantity; // Get current quantity, default to 1 if not present
+                await updateDoc(prodRef, {
+                    quantity: currentQuantity + 1 // Increment the quantity by 1
+                });
+                toast.success("Quantity updated in Cart");
+            } else {
+                // Document does not exist, create a new one with quantity 1
+                await setDoc(prodRef, {
+                    id: data.id,
+                    title: data.title,
+                    category: data.category,
+                    image: data.image,
+                    price: data.price.toFixed(),
+                    quantity: 1 // Set initial quantity as 1
+                });
+                toast.success("Added to Cart");
+            }
         } catch (error) {
-            console.log(error)
+            console.log("Error adding to cart:", error);
+            toast.error("Error adding to Cart");
         }
-    }
+    };
 
     async function updateQuantity(id, quantity) {
         try {
@@ -101,12 +138,17 @@ const Products = (props) => {
     }
 
     function checkAuth(data) {
+        setLoader(data.id)
         setCartData([...CartData, data]);
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user.localId || !user.email || !user.passwordHash) {
             navigate('/signin');
         } else {
-            addToCart(data);
+            setLoader(data.id);
+            setTimeout(() => {
+                setLoader(null);
+                addToCart(data);
+            }, 1000);
         }
     }
 
@@ -115,23 +157,23 @@ const Products = (props) => {
             <ToastContainer />
             <div className='grid grid-cols-3 gap-8'>
                 {!props.cartTrue ?
-                    (props?.filteredData?.map((data) => {
+                    (props?.filteredData?.map((data, index) => {
                         return (
                             <>
-                                <div className='border-2 rounded-2xl p-8 shadow-sm' key={data.id}>
+                                <div className='border-2 rounded-2xl p-8 shadow-sm' key={data.id || index}>
                                     <img src={data.image} className='w-72 h-80 mb-4' alt="" />
                                     <div className='space-y-4'>
                                         <h1 className='text-ellipsis whitespace-nowrap overflow-hidden text-xl'>{data.title}</h1>
                                         <p className='text-2xl font-bold text-gray-600'>₹ {data.price}</p>
-                                        <button type='submit' className='rounded-xl w-full border-blue-200 p-3 bg-blue-600 text-white text-2xl'
-                                            onClick={() => checkAuth(data)}>Add To Cart</button>
+                                        <button type='submit' disabled={Loader === data.id} className='rounded-xl w-full border-blue-200 p-3 bg-blue-600 text-white text-2xl'
+                                            onClick={() => checkAuth(data)}>{Loader === data.id ? 'Adding To Cart...' : 'Add To Cart'} </button>
                                     </div>
                                 </div>
                             </>
                         )
-                    })) : (CartData?.map((data) => {
+                    })) : (CartData?.map((data, index) => {
                         return (
-                            <div className='border-2 rounded-2xl p-8 shadow-sm' key={data.id}>
+                            <div className='border-2 rounded-2xl p-8 shadow-sm' key={data.docId || index}>
                                 <img src={data.image} className='w-72 h-80 mb-4' alt="" />
                                 <div className='space-y-4'>
                                     <h1 className='text-ellipsis whitespace-nowrap overflow-hidden text-xl'>{data.title}</h1>
@@ -143,8 +185,8 @@ const Products = (props) => {
                                             <img src={more} alt="" onClick={() => updateQuantity(data.docId, data.quantity + 1)} />
                                         </div>
                                     </div>
-                                    <button type='submit' className='rounded-xl w-full border-blue-200 p-3 bg-red-600 text-white text-2xl'
-                                        onClick={() => removeCart(data.docId)}>Remove from Cart</button>
+                                    <button type='submit' disabled={Loader === data.id} className='rounded-xl w-full border-blue-200 p-3 bg-red-600 text-white text-2xl'
+                                        onClick={() => removeCart(data.docId)}>{Loader === data.id ? 'Removing From Cart' : 'Remove From Cart'} </button>
                                 </div>
                             </div>
                         )

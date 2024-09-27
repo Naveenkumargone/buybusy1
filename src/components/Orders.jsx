@@ -10,7 +10,6 @@ const Orders = () => {
             try {
                 const results = await getDocs(collection(db, "orders"));
                 const fetchedOrders = results.docs.map((doc) => ({ docId: doc.id, ...doc.data() }));
-                console.log('fetchedOrders = ', fetchedOrders);
                 setOrderDetails(fetchedOrders);
             } catch (error) {
                 console.log(error);
@@ -22,7 +21,6 @@ const Orders = () => {
 
     // Log orderDetails whenever it updates
     useEffect(() => {
-        console.log('Updated orderDetails = ', orderDetails);
     }, [orderDetails]);
 
 
@@ -57,33 +55,35 @@ const Orders = () => {
                         );
 
                         return (
-                            <div className="text-center mt-8" key={order.docId}>
-                                <h1 className="text-xl font-bold py-2">Order Id : {index + 1}</h1>
-                                <h1 className="text-xl font-bold py-2">{formattedDate} {formattedTime}</h1>
-                                <table className="border-0 relative w-1/2 m-auto border-spacing-1 border-separate">
-                                    <thead>
-                                        <tr className="bg-zinc-100">
-                                            <th className="p-3 border-b-2 border-black">Title</th>
-                                            <th className="p-3 border-b-2 border-black">Price</th>
-                                            <th className="p-3 border-b-2 border-black">Quantity</th>
-                                            <th className="p-3 border-b-2 border-black">Total Price</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {order.order.map(item =>
+                            <div className="my-6">
+                                <div className="text-center py-8" key={order.docId}>
+                                    <h1 className="text-xl font-bold">Order Id : {index + 1}</h1>
+                                    <h1 className="text-xl font-bold">{formattedDate} {formattedTime}</h1>
+                                    <table className="border-0 relative w-1/2 m-auto border-spacing-1 border-separate">
+                                        <thead>
                                             <tr className="bg-zinc-100">
-                                                <td>{item.title}</td>
-                                                <td>₹ {item.price}</td>
-                                                <td>1 {item.quantity}</td>
-                                                <td>₹ {item.price * item.quantity}</td>
+                                                <th className="p-3 border-b-2 border-black">Title</th>
+                                                <th className="p-3 border-b-2 border-black">Price</th>
+                                                <th className="p-3 border-b-2 border-black">Quantity</th>
+                                                <th className="p-3 border-b-2 border-black">Total Price</th>
                                             </tr>
-                                        )}
-                                    </tbody>
+                                        </thead>
+                                        <tbody>
+                                            {order.order.map(item =>
+                                                <tr className="bg-zinc-100">
+                                                    <td>{item.title}</td>
+                                                    <td>₹ {item.price}</td>
+                                                    <td>{item.quantity}</td>
+                                                    <td>₹ {item.price * item.quantity}</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
 
-                                    <tr className="bg-zinc-100 absolute text-end w-full p-2 ps-[85%]">
-                                        <td>₹ {totalPrice}</td>
-                                    </tr>
-                                </table>
+                                        <tr className="bg-zinc-100 absolute text-end w-full p-2 ps-[85%]">
+                                            <td>₹ {totalPrice}</td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
                         )
                     }

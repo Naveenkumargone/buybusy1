@@ -63,6 +63,13 @@ function App() {
     setSharedData(checkboxdata); // Set selected categories, filtering happens automatically
   };
 
+  const setSearch = (val) => {
+    let newData = data.filter((e) =>
+      e.title.toLowerCase().includes(val.toLowerCase())
+    );
+    setFilteredData(newData);
+  };
+
   return (
     <>
       <DataProviderContext>
@@ -73,7 +80,7 @@ function App() {
             element={
               data ? (
                 <>
-                  <SearchBox />
+                  <SearchBox setSearch={setSearch} />
                   <div className="flex justify-between">
                     <Sidebar
                       sharePrice={sharePrice}

@@ -5,7 +5,7 @@ import { DataContext } from '../DataProviderContext';
 const Sidebar = ({ sharePrice, shareValue, cartTrue }) => {
   const [price, setPrice] = useState(750);
   const [value, setValue] = useState([]);
-  const { sharedData, setPurchase } = useContext(DataContext);
+  const { sharedData, setPurchase, cart } = useContext(DataContext);
 
   const checkRange = (e) => {
     setPrice(e.target.value);
@@ -32,7 +32,7 @@ const Sidebar = ({ sharePrice, shareValue, cartTrue }) => {
 
 
   return (
-    (cartTrue && sharedData === 0) ?
+    ((cartTrue && sharedData == 0 && cart == null)) ?
       <div className='text-4xl font-bold my-8 mx-4'>
         Cart is Empty!
       </div>
