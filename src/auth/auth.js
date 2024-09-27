@@ -13,8 +13,6 @@ const Auth = () => {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const newUser = userCredential.user;
-            console.log('User signed up successfully!');
-            console.log('New User ID:', newUser.uid);
             // Additional new user information is available in the 'newUser' object.
         } catch (error) {
             setError(error.message);
@@ -26,8 +24,6 @@ const Auth = () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            console.log('User signed in successfully!');
-            console.log('User ID:', user.uid);
             // Additional user information is available in the 'user' object.
         }
         catch (error) {

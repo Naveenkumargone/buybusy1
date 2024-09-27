@@ -16,8 +16,6 @@ const SignIn = () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
             const user = userCredential.user;
-            console.log(user)
-            console.log('User signed in successfully!', user.reloadUserInfo);
             localStorage.setItem('user', JSON.stringify(user.reloadUserInfo));
             navigate('/');
         }

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { useContext } from 'react';
+import { DataContext } from '../DataProviderContext';
 
-const Sidebar = ({ sharePrice, shareValue }) => {
+const Sidebar = ({ sharePrice, shareValue, cartTrue }) => {
   const [price, setPrice] = useState(750);
   const [value, setValue] = useState([]);
+  const { sharedData } = useContext(DataContext);
 
   const checkRange = (e) => {
     setPrice(e.target.value);
@@ -12,44 +15,60 @@ const Sidebar = ({ sharePrice, shareValue }) => {
   const checkbox = (e) => {
     if (value.includes(e)) {
       setValue(value.filter((val) => val !== e));
-    }else{
+    } else {
       setValue([...value, e]);
     }
   }
-  
+
   useEffect(() => {
-    shareValue(value);
-  }, [value]);
+    if (!cartTrue) {
+      shareValue(value);
+    }
+  }, [cartTrue, shareValue, value]);
 
   return (
-    <aside>
-      <div className='w-1/6 py-10 bg-gray-200 transform -translate-y-1/2 top-1/2 fixed'>
-        <form action="" className='flex flex-col justify-center items-center space-y-4'>
-          <h1 className='text-2xl font-bold text-green-950'>Filter</h1>
-          <label htmlFor="">Price: {price} </label>
-          <input type="range" name="" id="" min={1} max={1000} defaultValue={750} onChange={(e) => checkRange(e)} />
-          <label htmlFor="" className='text-2xl text-green-950 font-semibold'>Category</label>
-          <ul>
-            <li>
-              <input type="checkbox" name="" id="mensclothing" onClick={() => checkbox("men's clothing")} />
-              <label className='text-xl px-2' htmlFor="mensclothing">Men's Clothing</label>
-            </li>
-            <li>
-              <input type="checkbox" name="" id="womensclothing" onClick={() => checkbox("women's clothing")} />
-              <label className='text-xl px-2' htmlFor="womensclothing">Women's Clothing</label>
-            </li>
-            <li>
-              <input type="checkbox" name="" id="jewelery" onClick={() => checkbox("jewelery")} />
-              <label className='text-xl px-2' htmlFor="jewelery">Jewelery</label>
-            </li>
-            <li>
-              <input type="checkbox" name="" id="electronics" onClick={() => checkbox("electronics")} />
-              <label className='text-xl px-2' htmlFor="electronics">Electronics</label>
-            </li>
-          </ul>
-        </form>
+    (cartTrue && sharedData === 0) ?
+      <div className='text-4xl font-bold my-8 mx-4'>
+        Cart is Empty!
       </div>
-    </aside>
+      :
+      (
+        <aside>
+          <div className='w-1/6 py-10 bg-gray-200 transform -translate-y-1/2 top-1/2 fixed'>
+            {!cartTrue ? (
+              <form action="" className='flex flex-col justify-center items-center space-y-4'>
+                <h1 className='text-2xl font-bold text-green-950'>Filter</h1>
+                <label htmlFor="">Price: {price} </label>
+                <input type="range" name="" id="" min={1} max={1000} defaultValue={750} onChange={(e) => checkRange(e)} />
+                <label htmlFor="" className='text-2xl text-green-950 font-semibold'>Category</label>
+                <ul>
+                  <li>
+                    <input type="checkbox" name="" id="mensclothing" onClick={() => checkbox("men's clothing")} />
+                    <label className='text-xl px-2' htmlFor="mensclothing">Men's Clothing</label>
+                  </li>
+                  <li>
+                    <input type="checkbox" name="" id="womensclothing" onClick={() => checkbox("women's clothing")} />
+                    <label className='text-xl px-2' htmlFor="womensclothing">Women's Clothing</label>
+                  </li>
+                  <li>
+                    <input type="checkbox" name="" id="jewelery" onClick={() => checkbox("jewelery")} />
+                    <label className='text-xl px-2' htmlFor="jewelery">Jewelery</label>
+                  </li>
+                  <li>
+                    <input type="checkbox" name="" id="electronics" onClick={() => checkbox("electronics")} />
+                    <label className='text-xl px-2' htmlFor="electronics">Electronics</label>
+                  </li>
+                </ul>
+              </form>
+            ) :
+              (<div className='flex justify-center items-center flex-wrap space-y-8'>
+                <h1 className='text-2xl text-green-950 font-semibold text-center w-full'>TotalPrice:- ₹ {sharedData}/- </h1>
+                <button type='submit' className='text-2xl rounded-xl w-1/2 left-2/4 border-blue-200 p-2 bg-blue-600 text-white'
+                >Purchase</button>
+              </div>)}
+          </div>
+        </aside>
+      )
   )
 }
 
