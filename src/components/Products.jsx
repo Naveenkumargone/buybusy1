@@ -141,7 +141,7 @@ const Products = (props) => {
         setLoader(data.id)
         setCartData([...CartData, data]);
         const user = JSON.parse(localStorage.getItem('user'));
-        if (!user.localId || !user.email || !user.passwordHash) {
+        if (!user || !user.email || !user.passwordHash) {
             navigate('/signin');
         } else {
             setLoader(data.id);
